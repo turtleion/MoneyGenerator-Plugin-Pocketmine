@@ -1,0 +1,32 @@
+name: MonGenerator
+main: MonGenerator\MonMain
+version: 1.0.0
+api: 3.0.0
+load: STARTUP
+author: Schov
+description: Earn money every minute
+website: https://github.com/turtleion
+commands:
+ mongen:
+  description: "Get MoneyGen"
+  usage: "/mongen"
+  permission: mongen.get
+ upgen:
+  description: "Upgrade MoneyGen"
+  usage: "/upgen"
+  permission: mongen.gen.up
+
+permissions:
+ mongen:
+  default: op
+  description: "Allows using everything MonGen has"
+  children:
+   mongen.get :
+    description: "Allows to get MonGen"
+    default: false
+   mongen.gen:
+    childern:
+      mongen.genup:
+       description: "Allows Upgade Generators"
+       default: false
+   
