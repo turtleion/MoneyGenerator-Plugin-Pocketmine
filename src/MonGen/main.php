@@ -18,7 +18,7 @@
 */
 
 
-namespace KontolodonTerbang;
+namespace MonGen;
 
 
 use pocketmine\event\player\PlayerInteractEvent;
@@ -45,19 +45,17 @@ use pocketmine\entity\Effect;
 use pocketmine\tile\Chest;
 use pocketmine\inventory\ChestInventory;
 use pocketmine\nbt\tag\StringTag;
-
-
+use onebone\economyapi\EconomyAPI;
+use jojoe77777/FormAPI/SimpleForm;
 
 class Main extends PluginBase implements Listener {
-    protected $email = "";
-    protected $emailConf = "";
-    protected $pin = 0;
-    protected $otpcode = 0;
     protected $generatedUniqueIds = "";
+    protected $itemNameGen1 = "Generator Lvl 1";
     protected $db;
+    protected $timer;
 
     public function onLoad(): void {
-        $this->getLogger()->info(Colors::GREEN . "Loading Script...");
+        $this->getLogger()->info("Loading Script...");
     }
 
     public function onEnable() : void {
@@ -88,63 +86,92 @@ class Main extends PluginBase implements Listener {
     }
 
     public function onCommand((CommandSender $sender, Command $command, $label, array $args) : bool{
-        
+
         switch($command->getName()){
+            case "genshop":
+                    if($sender instamceof Player){
+                            $this->openShopForm($sender);
+                    }
             case "mongen":
-                
-                break;
-            
-            case "verifycode":
-                if(isset($args[0]) && isset($args[1])){
-                    $sender->sendMessage(Colors::RED . "Needed 2 Arguments, Please Correct Again What You Type");
-                    return true;
-                }
-                if(count($args) !== 2){
-                    $sender->sendMessage(Colors::RED . "Needed 2 Arguments, Please Correct Again What You Type");
-                }
+                    if($sender instanceof Player){
+                            $item = Item::get(399.0,1);
+                            $item->setCustomName($this->itemNameGen1);
+                            $item->setNamedTagEntry(new StringTag("Gen","1"));
+                            $sender->getInvemtory()->addItem($item);
 
-                $code = $args[0];
-                $pin = $args[1];
-
-                
-                if(strlen($pin) < 4 || strlen($code) < 6){
-                    $sender->sendMessage(Colors:YELLOW . "Email must be 5 characters or above | if you're email actually 5 char only, you can use other email");
-                    return true;
-                }
-
+                    }else{
+                            $sender->sendMessage("Must run in game");
+                    }
                 // Connect to Website : MySQL
                 break;
-            case "login":
+            case "upgen":
+                break;
 
         }
     }
+    public function openShopForm(Player $s){
+            $form = new SimpleForm(function (Player $p, int $data){
+                $result = $data;
+                if($result === null){
+                        return true;
+                }
+                switch($result){
+                        case 0:
+                                $q = $db->query("SELECT * FROM data WHERE GenLvl = 1");
+                                if(!$q instanceof \SQLite3Result){
+                                        $p->sendMessage("Internal Error Been Found!, System cannot fix that");
+                                        return true;
+                                }
+                                $arr = $q->fetchArray(SQLITE3_ASSOC);
+                                if($arr[$p->getName()] == "buyyed"){
+                                        $p->sendMessage("You've Already Buy This One");
+                                        return true;
+                                }
+                                if(EconomyAPI::getInstance()->myMoney($p) < 35000){
+                                        $p->sendMessage("You money is too low, need " . 35000 - EconomyAPI::getInstance()->myMoney($p) . "money to buy this";
+                                }
+                                EconomyAPI::getInstance()->reduceMoney($p, 35000);
+                                $item = Item::get(399,0,1);
+                                $item->setCustomName($this->itemNameGen1);
+                                $item->setNamedTag(new StringTag("Gen","1"));
+                                $p->getInventory()->addItem($item);
+                                $p->sendMessage("Thank you to visit!");
+                                break;
+                        case 1:
+                                $p->sendMessage("Thank you to visit!");
+                                break;
 
-    public function unLoggedWarning(Player $sender){
-        $sender->addEffect(EFFECT::BLINDNESS)->setDuration(62441286000);
-        $sender->addEffect(EFFECT::INVICIBILITY)->setDuration(62441286000);
-        $cmd = "title \"" . "\" title \"Please Register!\" ";
-        $sender->sendMessage("use /register to register\nUsage : /register example@gmail.com example@gmail.com\n");        
-        $this->getServer()->dispatchCommand(new ConsoleCommandSender(), $cmd);
+                }
+
+            });
+            $form->setTitle("Generator Shop");
+            $form->setContent("Select action what you want to do");
+            $form->addButton("Buy Generator Lv. 1");
+            $form->sendToPlayer($s);
+            return $form;
     }
 
-    public function onPlayerJoin(PlayerJoinEvent $event) {
-        $player = $event->getPlayer();
-        $playername = trim(strtolower($player->getName()));
-/*        $prepare = $this->db->prepare("SELECT * FROM playerdata WHERE name = :name");
-        $prepare->bindValue(":name",$playername,SQLITE3_TEXT);
-                        $parsedData = $res->fetchArray(SQLITE3_ASSOC);
-                $uuid = $parsedData["uuid"];
-                $email = $parsedData["email"];
-                $res->finalize();
-*/
-        $res = $prepare->execute();
-        if($res instanceof \SQLite3Result){
-            if($res->numRows() <= 0){
-                $player->sendMessage("Please register your account to enter this server");
-                $this->unLoggedWarning($player);
 
+
+    public function onClick(PlayerInteractEvent $ev) : void {
+            $player = $ev->getPlayer();
+            $item = $ev->getItem();
+
+            if($item->getNamedTag()->hasTag("Gen")){
+                    // if interact
+                    if($timer[$player->getName()] == null || $timer[$player->getName()] <= 0){
+                            $timer += [$player->getName() => 5];
+                            $parentTag = $item->getNamedTag()->getString("Gen");
+                            if($parentTag == "1")){
+                                    $p->sendMessage("Interact 5 More Times to Unlock Generator");
+                                    EconomyAPI::getInstance()->addMoney($player,2500);
+                            }
+                    }else{
+                            $bforeTimer = $timer[$player->getName()];
+                            unset($timer[$player->getName()];
+                            $timer += [$timer->getName() => $bforeTimer--];
+
+                    }
             }
-
-        }
     }
 }
