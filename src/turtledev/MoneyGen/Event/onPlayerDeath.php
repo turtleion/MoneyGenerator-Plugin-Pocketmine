@@ -11,9 +11,12 @@ use pocketmine\event\player\PlayerRespawnEvent;
 
 
 class onPlayerDeath implements Listener {
-	public function __construct(MoneyGen $mg){
+    protected $data;
+    protected $pname;
+
+    public function __construct(MoneyGen $mg){
 		parent::__construct($mg);
-	}
+    }
 
     public generateItem(Inventory $inv,Item $i,$name,StringTag $srtag){
         $i->setCustomName($name);
@@ -21,12 +24,20 @@ class onPlayerDeath implements Listener {
         $inv->addItem($i);
     }
 
+    public function onRespawn(PlayerRespawnEvent $rp){
+        if($rp->getPlayer()->getName() == $this->pname){
+            $this->generateItem($data[0],$data[1],$data[2],$data[3]);
+        }
+    }
+
     public function onDeath(PlayerDeathEvent $p){
         $player = $p->getPlayer();
         $playerinv = $player->getInventory();
         $item = Item::get(399,0,1);
         if($playerinv->contains($item) and $item->getName() == $this->itemNameGen1){
-            $this->generateItem($playerinv,$item,$this->itemNameGen1,new StringTag("Gen","1"));
+            $this->pname = $player->getName();
+            $strtag = new StringTag("Gen","1");
+            $this->data = [$playerinv, $item, $itemNameGen1,$strtag];
         }
     }
 
