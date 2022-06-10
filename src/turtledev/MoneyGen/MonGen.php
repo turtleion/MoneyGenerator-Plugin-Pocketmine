@@ -48,7 +48,7 @@ class Main extends PluginBase {
     protected $generatedUniqueIds = "";
     public $itemNameGen1 = "Generator Lvl 1";
     protected $db;
-    protected $timer;
+    protected $cooldown;
 
     public function onLoad(): void {
         $this->getLogger()->info("Loading Script...");
@@ -96,12 +96,12 @@ class Main extends PluginBase {
                         $item = Item::get(399.0,1);
                         $item->setCustomName($this->itemNameGen1);
                         $item->setNamedTagEntry(new StringTag("Gen","1"));
-                        $sender->getInvemtory()->addItem($item);
+                        $sender->getInventory()->addItem($item);
 
                     }else{
                             $sender->sendMessage("Must run in game");
                     }
-                // Connect to Website : MySQL
+              
                 break;
             case "upgen":
                 break;
@@ -150,12 +150,12 @@ class Main extends PluginBase {
             return $form;
     }
 
-    public function getTimer(){
-        return $timer;
+    public function getCD(){
+        return $this->cooldown;
     }
 
-    public function setTimer($timers){
-        $timer = $timers
+    public function setCD($cd){
+        $this->cooldown = $cd
     }
 
 
