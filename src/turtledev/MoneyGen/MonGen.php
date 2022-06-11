@@ -28,7 +28,6 @@ use onebone\economyapi\EconomyAPI;
 use jojoe77777/FormAPI/SimpleForm;
 
 class Main extends PluginBase {
-    protected $generatedUniqueIds = "";
     public $itemNameGen1 = "Generator Lvl 1";
     public $db;
     protected $cooldown;
