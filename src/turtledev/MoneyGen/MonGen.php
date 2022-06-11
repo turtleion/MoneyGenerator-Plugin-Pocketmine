@@ -30,7 +30,7 @@ use jojoe77777/FormAPI/SimpleForm;
 class Main extends PluginBase {
     protected $generatedUniqueIds = "";
     public $itemNameGen1 = "Generator Lvl 1";
-    protected $db;
+    public $db;
     protected $cooldown;
 
     public function onLoad(): void {
