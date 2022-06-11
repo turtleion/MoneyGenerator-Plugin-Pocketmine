@@ -1,4 +1,4 @@
 CREATE TABLE data (
-    name VARCHAR PRIMARY KEY
-    cooldown INT
+    name VARCHAR(255) NOT NULL PRIMARY KEY,
+    cooldown INT(255) NOT NULL
 )
