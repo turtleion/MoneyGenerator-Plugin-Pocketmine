@@ -13,9 +13,10 @@ use pocketmine\event\player\PlayerRespawnEvent;
 class onPlayerDeath implements Listener {
     protected $data;
     protected $pname;
+    protected $plugin;
 
     public function __construct(MoneyGen $mg){
-		parent::__construct($mg);
+	$this->plugin = $mg;
     }
 
     public generateItem(Inventory $inv,Item $i,$name,StringTag $srtag){
