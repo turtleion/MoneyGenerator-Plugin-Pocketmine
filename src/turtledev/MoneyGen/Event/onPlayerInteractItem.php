@@ -9,9 +9,10 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 
 class onPlayerInteractItem implements Listener {
+    protected $plugin;
     protected $cd = [];
     public function __construct(MoneyGen $mg){
-	   parent::__construct($mg);
+	   $this->plugin = $mg;
            $cd = $mg->getCD();
     }
 
@@ -34,7 +35,7 @@ class onPlayerInteractItem implements Listener {
                             $cd += [$player->getName() => $bfore--];
 
                     }
-                    $this->setCD($cd);
+                    $this->plugin->setCD($this->cd);
             }
 
 
