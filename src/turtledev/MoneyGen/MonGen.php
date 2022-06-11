@@ -21,9 +21,7 @@
 namespace turtledev\MoneyGen;
 use turtledev\MoneyGen\Event\onPlayerInteractItem;
 use turtledev\MoneyGen\Event\onPlayerDisconnect;
-use pocketmine\event\player\PlayerInteractEvent;
-use pocketmine\event\player\PlayerLoginEvent;
-use pocketmine\event\player\PlayerQuitEvent;
+use turtledev\MoneyGen\Event\onPlayerDeath;
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
 use pocketmine\utils\TextFormat;
@@ -70,9 +68,10 @@ class Main extends PluginBase {
             $this->db = new \SQLite3($this->getDataFolder() . 'player.db',  SQLITE3_OPEN_READWRITE );
         }
 
-        if(!settings["appversion"] == "1.0.0"){
-            $this->getLogger()->info("Failed Load : Incompatible App Version");
-            throw new Exception("[MonGen] Error Occured!");
+        $prof = $this->httpRequest($this->settings["update_url"]);
+
+        if(!$this->settings["appversion"] == $prof and $this->settings["checkupdate"] == "true"){
+            $this->getLogger()->info("This plugin vertsion are outdated, please update this plugin to get more useful features");
         }
 
 
@@ -108,6 +107,25 @@ class Main extends PluginBase {
 
         }
     }
+                              
+    public function httpRequest($url){
+        
+        // Initiate CURL
+        $ch = curl_init();
+
+        // Set Option for CURL
+        curl_setopt($ch, CURLOPT_URL, $url);
+        // set user agent
+        curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+
+        // execute the curl process
+        $output = curl_exec($ch);
+
+        // return the output of the curl
+        return $output;
+    }
+
     public function openShopForm(Player $s){
             $form = new SimpleForm(function (Player $p, int $data){
                 $result = $data;
@@ -122,7 +140,7 @@ class Main extends PluginBase {
                                         return true;
                                 }
                                 $arr = $q->fetchArray(SQLITE3_ASSOC);
-                                if($arr[$p->getName()] == "buyyed"){
+                                if($arr["name"] == $p->getName()){
                                         $p->sendMessage("You've Already Buy This One");
                                         return true;
                                 }
