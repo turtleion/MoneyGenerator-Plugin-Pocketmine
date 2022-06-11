@@ -9,11 +9,11 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 
 class onPlayerInteractItem implements Listener {
-    protected $timer = [];
-	public function __construct(MoneyGen $mg){
-		parent::__construct($mg);
-        $timer = $mg->getTimer();
-	}
+    protected $cd = [];
+    public function __construct(MoneyGen $mg){
+	   parent::__construct($mg);
+           $cd = $mg->getCD();
+    }
 
     public function onClick(PlayerInteractEvent $ev){
             $player = $ev->getPlayer();
@@ -21,20 +21,20 @@ class onPlayerInteractItem implements Listener {
 
             if($item->getNamedTag()->hasTag("Gen")){
                     // if interact
-                    if($timer[$player->getName()] == null || $timer[$player->getName()] <= 0){
-                            $timer += [$player->getName() => 5];
+                    if($cd[$player->getName()] == null || $cd[$player->getName()] <= 0){
+                            $cd += [$player->getName() => 5];
                             $parentTag = $item->getNamedTag()->getString("Gen");
                             if($parentTag == "1")){
                                     $p->sendMessage("Interact 5 More Times to Unlock Generator");
                                     EconomyAPI::getInstance()->addMoney($player,2500);
                             }
                     }else{
-                            $bforeTimer = $timer[$player->getName()];
-                            unset($timer[$player->getName()];
-                            $timer += [$timer->getName() => $bforeTimer--];
+                            $bfore = $cd[$player->getName()];
+                            unset($cd[$player->getName()];
+                            $cd += [$player->getName() => $bfore--];
 
                     }
-                    $this->setTimer($timer);
+                    $this->setCD($cd);
             }
 
 
